@@ -16,9 +16,9 @@ async def on_ready():
 
     # 봇 구동 시 메시지 전송
     notice_channel = bot.get_channel(int(loader.get_env('notice_channel_id')))
-    await notice_channel.send(f'Server start!\n{get_date_time()}')
+    await notice_channel.send(f'⭐ Server start!\n{get_date_time()}')
 
-    # 봇 정보
+    # 봇 정보 출력
     print(f'login sucess: {bot.user}')
     print(f'id is \"{bot.user.id}\"')
 
@@ -38,11 +38,12 @@ async def on_ready():
                 await alimi_channel.send(message)
             sleep(5)
     except KeyboardInterrupt as e:
-        await notice_channel.send(f'Server terminated.\n{get_date_time()}')
+        await notice_channel.send(f'⛔ Server terminated.\n{get_date_time()}')
         exit()
     except RuntimeError as e:
-        await notice_channel.send(f'runtime error occured.\n\
-                                  Server closed.\n{get_date_time()}')
+        await notice_channel.send(f'❌ Server closed.\n\
+                                  runtime error occured.\n{get_date_time()}')
+        exit()
 
 
 def mapping(crawl_result: dict):
@@ -56,7 +57,7 @@ def mapping(crawl_result: dict):
 
 
 def get_date_time():
-    return f'Date: {strftime("%Y.%m.%d (%a)")}\nTime: {strftime("%X")}'
+    return f'\tDate: {strftime("%Y.%m.%d (%a)")}\n\tTime: {strftime("%X")}'
 
 
 if __name__ == '__main__':
