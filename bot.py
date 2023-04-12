@@ -2,6 +2,7 @@ import loader
 import discord
 import crawler
 from time import sleep, strftime
+import mapper
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -34,7 +35,7 @@ async def on_ready():
             result = crawler.start(driver)
             if result['number'] != now_number:
                 now_number = result['number']
-                message = mapping(result)
+                message = mapper.mapping_new_info(result)
                 await alimi_channel.send(message)
             sleep(5)
     except KeyboardInterrupt as e:
@@ -44,16 +45,6 @@ async def on_ready():
         await notice_channel.send(f'❌ Server closed.\n\
                                   runtime error occured.\n{get_date_time()}')
         exit()
-
-
-def mapping(crawl_result: dict):
-    message = '---------------------------------------\n'
-    for key, value in crawl_result.items():
-        if key == 'number':
-            continue
-        message += f'{key}: {value}\n'
-    message += '---------------------------------------'
-    return message
 
 
 def get_date_time():
