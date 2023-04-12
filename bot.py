@@ -1,7 +1,7 @@
 import loader
 import discord
 import crawler
-from time import sleep, strftime
+from time import strftime
 import mapper
 import asyncio
 
@@ -38,7 +38,7 @@ async def on_ready():
                 now_number = result['number']
                 message = mapper.mapping_new_info(result)
                 await alimi_channel.send(message)
-            await asyncio.sleep(5)
+            await asyncio.sleep(600)
     except KeyboardInterrupt as e:
         await notice_channel.send(f'⛔ Server terminated.\n{get_date_time()}')
         exit()
