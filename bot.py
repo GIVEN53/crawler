@@ -3,6 +3,7 @@ import discord
 import crawler
 from time import sleep, strftime
 import mapper
+import asyncio
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -37,7 +38,7 @@ async def on_ready():
                 now_number = result['number']
                 message = mapper.mapping_new_info(result)
                 await alimi_channel.send(message)
-            sleep(5)
+            await asyncio.sleep(5)
     except KeyboardInterrupt as e:
         await notice_channel.send(f'⛔ Server terminated.\n{get_date_time()}')
         exit()
