@@ -15,8 +15,8 @@ async def on_ready():
     await bot.change_presence(activity=game, status=discord.Status.online)
 
     # 봇 구동 시 메시지 전송
-    channel = bot.get_channel(1095321054056026183)
-    await channel.send('Server start!\n' + strftime('%Y.%m.%d - %X (%a)'))
+    notice_channel = bot.get_channel(loader.get_env('notice_channel_id'))
+    await notice_channel.send('Server start!\n' + strftime('%Y.%m.%d - %X (%a)'))
 
     # 봇 정보
     print(f'login sucess: {bot.user}')
@@ -28,12 +28,13 @@ async def on_ready():
 
     # 크롤링 시작
     now_number = '0'
+    alimi_channel = bot.get_channel(loader.get_env('alimi_channel_id'))
     while True:
         result = crawler.start(driver)
         if result['number'] != now_number:
             now_number = result['number']
             message = mapping(result)
-            await channel.send(message)
+            await alimi_channel.send(message)
         sleep(5)
 
 
