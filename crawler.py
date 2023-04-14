@@ -8,13 +8,14 @@ xpath = {'number': 'td:nth-child(1)', 'title': 'td:nth-child(2) > div:nth-child(
 # selenium driver 생성
 def create_driver():
     driver = webdriver.Chrome('./chromedriver')
-    driver.get(loader.get_env('login_url'))
+    driver.get(loader.get_env('main_url'))
     driver.implicitly_wait(10)
     return driver
 
 
 # 로그인 후 크롤링 url 진입
 def login(driver: webdriver.Chrome):
+    driver.get(loader.get_env('login_url'))
     email = loader.get_env('email')
     password = loader.get_env('password')
 
@@ -22,11 +23,10 @@ def login(driver: webdriver.Chrome):
     driver.find_element(By.ID, 'password').send_keys(password)
     driver.find_element(By.CLASS_NAME, 'btn5.btn_blue2').click()
 
-    driver.get(loader.get_env('crawling_url'))
-
 
 # 크롤링 시작
-def start(driver: webdriver.Chrome):
+def crawl_target(driver: webdriver.Chrome):
+    driver.get(loader.get_env('crawling_url'))
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
     source = soup.select('#listFrm > table > tbody > tr')[1]
