@@ -27,7 +27,6 @@ def login(driver: webdriver.Chrome):
 
 # 크롤링 시작
 def start(driver: webdriver.Chrome):
-    driver.refresh()
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
     source = soup.select('#listFrm > table > tbody > tr')[1]
