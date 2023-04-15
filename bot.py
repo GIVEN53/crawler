@@ -4,6 +4,7 @@ import crawler
 from time import strftime
 import mapper
 import asyncio
+from selenium.common.exceptions import UnexpectedAlertPresentException
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -38,6 +39,9 @@ async def send_result(notice_channel, alimi_channel, driver, now_number):
                 message = mapper.mapping_new_info(result)
                 await alimi_channel.send(message)
             await asyncio.sleep(REFRESH_SEC)
+    except UnexpectedAlertPresentException :
+        crawler.login(driver)
+        await send_result(alimi_channel, driver, now_number)
     except asyncio.CancelledError or KeyboardInterrupt:
         await notice_channel.send(f'⛔ Server terminated.\n{get_date_time()}')
 
@@ -45,7 +49,7 @@ async def send_result(notice_channel, alimi_channel, driver, now_number):
 @bot.event
 async def on_error(event, *args, **kwargs):
     await bot.close()
-    
+
 
 def get_date_time():
     return f'\tDate: {strftime("%Y.%m.%d (%a)")}\n\tTime: {strftime("%X")}'
