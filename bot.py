@@ -8,7 +8,7 @@ import asyncio
 intents = discord.Intents.default()
 intents.message_content = True
 bot = discord.Client(intents=intents)
-
+REFRESH_SEC = 180
 
 @bot.event
 async def on_ready():
@@ -20,33 +20,32 @@ async def on_ready():
     notice_channel = bot.get_channel(int(loader.get_env('notice_channel_id')))
     await notice_channel.send(f'⭐ Server start!\n{get_date_time()}')
 
-    # 봇 정보 출력
-    print(f'login sucess: {bot.user}')
-    print(f'id is \"{bot.user.id}\"')
-
     # 크롤링 전 로그인
     driver = crawler.create_driver()
     crawler.login(driver)
 
-    # 크롤링 시작
-    now_number = '0'
+    # 크롤링 결과 알림 전송
     alimi_channel = bot.get_channel(int(loader.get_env('alimi_channel_id')))
+    await send_result(notice_channel, alimi_channel, driver, '0')
+
+
+async def send_result(notice_channel, alimi_channel, driver, now_number):
     try:
         while True:
-            result = crawler.start(driver)
+            result = crawler.crawl_target(driver)
             if result['number'] != now_number:
                 now_number = result['number']
                 message = mapper.mapping_new_info(result)
                 await alimi_channel.send(message)
-            await asyncio.sleep(600)
-    except KeyboardInterrupt as e:
+            await asyncio.sleep(REFRESH_SEC)
+    except asyncio.CancelledError or KeyboardInterrupt:
         await notice_channel.send(f'⛔ Server terminated.\n{get_date_time()}')
-        exit()
-    except RuntimeError as e:
-        await notice_channel.send(f'❌ Server closed.\n\
-                                  runtime error occured.\n{get_date_time()}')
-        exit()
 
+
+@bot.event
+async def on_error(event, *args, **kwargs):
+    await bot.close()
+    
 
 def get_date_time():
     return f'\tDate: {strftime("%Y.%m.%d (%a)")}\n\tTime: {strftime("%X")}'
