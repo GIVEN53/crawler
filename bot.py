@@ -19,7 +19,7 @@ async def on_ready():
 
     # 봇 구동 시 메시지 전송
     notice_channel = bot.get_channel(int(loader.get_env('notice_channel_id')))
-    await notice_channel.send(f'⭐ Server start!\n{get_date_time()}')
+    await notice_channel.send(f'⭐ Server start!\n{get_date_time()}\n🔔 Notice: Refresh cycle is {REFRESH_SEC}s. 🔔')
 
     # 크롤링 전 로그인
     driver = crawler.create_driver()
