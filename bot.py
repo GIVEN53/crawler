@@ -44,7 +44,7 @@ async def send_result():
         result = crawler.crawl_target(driver)
         if result['number'] != now_number:
             now_number = result['number']
-            message = messenger.mapping_new_info(result)
+            message = messenger.get_new_info(result)
             await alimi_channel.send(message)
     except UnexpectedAlertPresentException:
         crawler.login(driver)
@@ -62,7 +62,7 @@ async def send_meeting_time():
     now = datetime.now()
 
     if meeting.is_meeting_time(now.weekday(), now.hour, now.minute):
-        message = messenger.mapping_meeting_info(now.weekday(), now.hour, now.minute)
+        message = messenger.get_meeting_info(now.weekday(), now.hour, now.minute)
         await meeting_channel.send(message)
 
 
