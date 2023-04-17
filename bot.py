@@ -27,7 +27,7 @@ async def on_ready():
     alimi_channel = bot.get_channel(int(loader.get_env('alimi_channel_id')))
     meeting_channel = bot.get_channel(int(loader.get_env('meeting_channel_id')))
 
-    await notice_channel.send(f'⭐ Server start!\n{get_date_time()}\n🔔 Notice: Refresh cycle is {REFRESH_SEC}s. 🔔')
+    await notice_channel.send(messenger.start_server())
 
     driver = crawler.create_driver()
     crawler.login(driver)
@@ -53,7 +53,7 @@ async def send_result():
 
 @send_result.after_loop
 async def close():
-    await notice_channel.send(f'⛔ Server terminated.\n{get_date_time()}')
+    await notice_channel.send(messenger.terminate_server())
     await bot.close()
 
 
@@ -64,10 +64,6 @@ async def send_meeting_time():
     if meeting.is_meeting_time(now.weekday(), now.hour, now.minute):
         message = messenger.get_meeting_info(now.weekday(), now.hour, now.minute)
         await meeting_channel.send(message)
-
-
-def get_date_time():
-    return f'\tDate: {datetime.now().strftime("%Y.%m.%d (%a)")}\n\tTime: {datetime.now().strftime("%X")}'
 
 
 if __name__ == '__main__':
