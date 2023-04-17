@@ -2,7 +2,7 @@ import loader
 import discord
 import crawler
 from datetime import datetime
-import mapper
+import messenger
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from discord.ext import tasks
 import meeting
@@ -44,7 +44,7 @@ async def send_result():
         result = crawler.crawl_target(driver)
         if result['number'] != now_number:
             now_number = result['number']
-            message = mapper.mapping_new_info(result)
+            message = messenger.mapping_new_info(result)
             await alimi_channel.send(message)
     except UnexpectedAlertPresentException:
         crawler.login(driver)
@@ -60,9 +60,9 @@ async def close():
 @tasks.loop(minutes=1)
 async def send_meeting_time():
     now = datetime.now()
-    
+
     if meeting.is_meeting_time(now.weekday(), now.hour, now.minute):
-        message = mapper.mapping_meeting_info(now.weekday(), now.hour, now.minute)
+        message = messenger.mapping_meeting_info(now.weekday(), now.hour, now.minute)
         await meeting_channel.send(message)
 
 
