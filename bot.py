@@ -1,10 +1,11 @@
 import loader
 import discord
 import crawler
-from time import strftime
+from datetime import datetime
 import mapper
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from discord.ext import tasks
+import meeting
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -15,7 +16,7 @@ now_number = '0'
 
 @bot.event
 async def on_ready():
-    global notice_channel, alimi_channel, driver
+    global notice_channel, alimi_channel, meeting_channel, driver
 
     # 봇 상태 정의
     game = discord.Game('크롤링')
@@ -24,11 +25,14 @@ async def on_ready():
     # 봇 구동 시 메시지 전송
     notice_channel = bot.get_channel(int(loader.get_env('notice_channel_id')))
     alimi_channel = bot.get_channel(int(loader.get_env('alimi_channel_id')))
+    meeting_channel = bot.get_channel(int(loader.get_env('meeting_channel_id')))
+
     await notice_channel.send(f'⭐ Server start!\n{get_date_time()}\n🔔 Notice: Refresh cycle is {REFRESH_SEC}s. 🔔')
 
     driver = crawler.create_driver()
     crawler.login(driver)
     send_result.start()
+    send_meeting_time.start()
 
 
 # 크롤링 결과 알림 전송
@@ -53,8 +57,17 @@ async def close():
     await bot.close()
 
 
+@tasks.loop(minutes=1)
+async def send_meeting_time():
+    now = datetime.now()
+    
+    if meeting.is_meeting_time(now.weekday(), now.hour, now.minute):
+        message = mapper.mapping_meeting_info(now.weekday(), now.hour, now.minute)
+        await meeting_channel.send(message)
+
+
 def get_date_time():
-    return f'\tDate: {strftime("%Y.%m.%d (%a)")}\n\tTime: {strftime("%X")}'
+    return f'\tDate: {datetime.now().strftime("%Y.%m.%d (%a)")}\n\tTime: {datetime.now().strftime("%X")}'
 
 
 if __name__ == '__main__':
