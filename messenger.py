@@ -25,10 +25,3 @@ def get_new_info(crawl_result: dict):
         message += f'{key}: {value}\n'
     message += '---------------------------------------'
     return message
-
-
-def get_meeting_info(weekday_num, hour, min):
-    weekday = weekdays[weekday_num]
-    message = f'📢 현재 시각: {weekday}요일, {hour}시 {min}분\n\t미팅 1분 전입니다.'
-
-    return message

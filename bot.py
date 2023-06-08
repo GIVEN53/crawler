@@ -1,22 +1,20 @@
 import loader
 import discord
 import crawler
-from datetime import datetime
 import messenger
-from selenium.common.exceptions import UnexpectedAlertPresentException
 from discord.ext import tasks
-import meeting
+import requests
 
 intents = discord.Intents.default()
 intents.message_content = True
 bot = discord.Client(intents=intents)
-REFRESH_SEC = 180
+REFRESH_SEC = 120
 now_number = '0'
 
 
 @bot.event
 async def on_ready():
-    global notice_channel, alimi_channel, meeting_channel, driver
+    global notice_channel, alimi_channel
 
     # 봇 상태 정의
     game = discord.Game('크롤링')
@@ -25,45 +23,34 @@ async def on_ready():
     # 봇 구동 시 메시지 전송
     notice_channel = bot.get_channel(int(loader.get_env('notice_channel_id')))
     alimi_channel = bot.get_channel(int(loader.get_env('alimi_channel_id')))
-    meeting_channel = bot.get_channel(int(loader.get_env('meeting_channel_id')))
 
     await notice_channel.send(messenger.start_server())
 
-    driver = crawler.create_driver()
-    crawler.login(driver)
-    send_result.start()
-    send_meeting_time.start()
+    session = requests.Session()
+    crawler.login(session)
+    send_result.start(session)
 
 
 # 크롤링 결과 알림 전송
 @tasks.loop(seconds=REFRESH_SEC)
-async def send_result():
+async def send_result(session):
     global now_number
 
     try:
-        result = crawler.crawl_target(driver)
+        result = crawler.crawl_target(session)
         if result['number'] != now_number:
             now_number = result['number']
             message = messenger.get_new_info(result)
             await alimi_channel.send(message)
-    except UnexpectedAlertPresentException:
-        crawler.login(driver)
-        await send_result()
+    except requests.exceptions.RequestException:
+        crawler.login(session)
+        await send_result(session)
 
 
 @send_result.after_loop
 async def close():
     await notice_channel.send(messenger.terminate_server())
     await bot.close()
-
-
-@tasks.loop(minutes=1)
-async def send_meeting_time():
-    now = datetime.now()
-
-    if meeting.is_meeting_time(now.weekday(), now.hour, now.minute):
-        message = messenger.get_meeting_info(now.weekday(), now.hour, now.minute)
-        await meeting_channel.send(message)
 
 
 if __name__ == '__main__':
