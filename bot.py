@@ -20,10 +20,10 @@ async def on_ready():
     game = discord.Game("크롤링")
     await bot.change_presence(activity=game, status=discord.Status.online)
 
-    # 봇 구동 시 메시지 전송
     notice_channel = bot.get_channel(int(loader.get_env("notice_channel_id")))
     alimi_channel = bot.get_channel(int(loader.get_env("alimi_channel_id")))
 
+    # 봇 구동 시 메시지 전송
     await notice_channel.send(messenger.start_server())
 
     session = requests.Session()
@@ -41,6 +41,7 @@ async def send_result(session):
         if result["number"] != now_number:
             now_number = result["number"]
             message = messenger.get_new_info(result)
+            # 결과 전송
             await alimi_channel.send(message)
     except requests.exceptions.RequestException:
         crawler.login(session)
