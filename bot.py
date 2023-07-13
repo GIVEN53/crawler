@@ -42,7 +42,7 @@ async def send_result(session):
             now_number = result["number"]
             message = messenger.get_new_info(result)
             await alimi_channel.send(message)
-    except requests.exceptions.RequestException or IndexError:
+    except requests.exceptions.RequestException:
         crawler.login(session)
         await send_result(session)
 
